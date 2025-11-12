@@ -58,7 +58,48 @@
         :show_abort="true"
         :op_data="ops.az_scan">
         <OpParam
+<<<<<<< HEAD
           caption="Start Time (float)"
+=======
+          caption="Angle (deg)"
+          v-model.number="ops.set_boresight.params.target" />
+        <div class="ocs_row">
+          <label>Set mode=Stop at end?</label>
+          <input type="checkbox" id="checkbox" v-model="ops.set_boresight.params.end_stop"
+           class="ocs_double" />
+        </div>
+      </OcsTask>
+
+      <OcsTask
+        :op_data="ops.stop_and_clear">
+      </OcsTask>
+
+      <OcsTask
+        :op_data="ops.clear_faults"
+      />
+
+      <OcsProcess
+        :op_data="ops.generate_scan">
+        <OpParam
+          caption="az1"
+          v-model.number="ops.generate_scan.params.az_endpoint1" />
+        <OpParam
+          caption="az2"
+          v-model.number="ops.generate_scan.params.az_endpoint2" />
+        <OpDropdown
+          caption="az start"
+          :options="start_types"
+          v-model="ops.generate_scan.params.az_start"
+        />
+        <OpParam
+          caption="el1"
+          v-model.number="ops.generate_scan.params.el_endpoint1" />
+        <OpParam
+          caption="el2"
+          v-model.number="ops.generate_scan.params.el_endpoint2" />
+        <OpParam
+          caption="az_speed"
+>>>>>>> eb157d4 (ACUAgent: add some generate_scan params for type2/3 scans (#83))
           modelType="blank_to_null"
           v-model.number="ops.az_scan.params.start_time" />
         <!--
@@ -75,7 +116,27 @@
           modelType="blank_to_null"
           v-model.number="ops.az_scan.params.scan_params.speed" />
         <OpParam
+<<<<<<< HEAD
           caption="Number of Scans (int)"
+=======
+          caption="az_vel_ref"
+          modelType="blank_to_null"
+          v-model.number="ops.generate_scan.params.az_vel_ref" />
+        <OpParam
+          caption="el_freq"
+          modelType="blank_to_null"
+          v-model.number="ops.generate_scan.params.el_freq" />
+        <OpParam
+          caption="scan_type"
+          modelType="blank_to_null"
+          v-model.number="ops.generate_scan.params.scan_type" />
+        <OpParam
+          caption="turnaround_method"
+          modelType="blank_to_null"
+          v-model.number="ops.generate_scan.params.turnaround_method" />
+        <OpParam
+          caption="num_scans"
+>>>>>>> eb157d4 (ACUAgent: add some generate_scan params for type2/3 scans (#83))
           modelType="blank_to_null"
           v-model.number="ops.az_scan.params.scan_params.num_scans" />
         <OpParam
@@ -85,9 +146,58 @@
         <OpParam
           caption="Az max (float)"
           modelType="blank_to_null"
+<<<<<<< HEAD
           v-model.number="ops.az_scan.params.scan_params.azimuth_range[1]" />
           --> 
      </OcsTask>
+=======
+          v-model.number="ops.generate_scan.params.step_time" />
+      </OcsProcess>
+
+      <!-- Sun Block -->
+
+      <OcsProcess
+        :op_data="ops.monitor_sun" />
+      <OcsTask
+        :op_data="ops.update_sun" />
+      <OcsTask
+        :op_data="ops.escape_sun_now" />
+
+      <!-- HWP Block -->
+
+      <OcsProcess
+        :op_data="ops.monitor_hwp" />
+      <OcsTask
+        :op_data="ops.update_hwp" />
+
+      <!-- Scan / Move parameters -->
+
+      <OcsTask
+        :op_data="ops.set_speed_mode">
+        <OpDropdown
+          caption="mode"
+          :options="speed_modes"
+          v-model="ops.set_speed_mode.params.speed_mode"
+        />
+      </OcsTask>
+
+      <!-- Background processes -->
+
+      <OcsProcess
+        :op_data="ops.monitor"
+      />
+      <OcsProcess
+        :op_data="ops.broadcast"
+      />
+      <OcsProcess
+        :op_data="ops.restart_idle"
+      />
+
+      <OcsOpAutofill
+        :ops_parent="ops"
+      />
+
+>>>>>>> eb157d4 (ACUAgent: add some generate_scan params for type2/3 scans (#83))
     </div>
   </div>
 </template>
