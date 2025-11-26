@@ -23,7 +23,15 @@
             caption="AGT"
             tip="Status of the connection between ocs-web and the Agent."
             :value="getIndicator('agent')"
-          />  
+          />
+          <OcsLight
+            caption="MON"
+            type="multi"
+            tip="Will show green/good when 'monitor' process is running and
+                     acquiring data normally. The health of this process is required
+                     for numerous other indicators."
+            :value="getIndicator('monitor')"
+          />
           <OcsLight
             caption="BCAST"
             type="multi"
@@ -32,7 +40,309 @@
             :value="getIndicator('broadcast')"
           />
         </OcsLightLine>
-      </div>
+
+        <OcsLightLine caption="ACU/Platform">
+          <OcsLight
+            caption="UNLOCKED"
+            type="multi"
+            tip="Will show green/good when remote control is not locked out (Safe)."
+            :value="getIndicator('-', 'Safe')"
+          />
+          <OcsLight
+            caption="REMOTE"
+            type="multi"
+            tip="Will show green/good when ACU is in Remote (rather than Local) control mode."
+            :value="getIndicator('+', 'ACU in remote mode')"
+          />
+          <OcsLight
+            caption="READY"
+            type="multi"
+            tip="Will show green/good unless ACU expresses a General summary fault."
+            :value="getIndicator('-', 'General summary fault')"
+          />
+          <OcsLight v-if="platformFeature('shutter')"
+            caption="SHUTTER"
+            type="multi"
+            tip="Will show green/good if shutter is open, otherwise red/bad."
+            :value="getIndicator('Shutter')"
+          />
+        </OcsLightLine>
+
+        <OcsLightLine caption="Axis Faults">
+          <template v-for="item in axisFaultLights" v-bind:key="item.name">
+            <OcsLight
+              :caption='item.name'
+              type="multi"
+              :tip="'Will show green/good if not &quot;' + item.key + '&quot;.'"
+              :value="getIndicator('-', item.key)"
+              v-if="!item.feature || platformFeature(item.feature)"
+            />
+          </template>
+        </OcsLightLine>
+
+        <OcsLightLine caption="Sun Safety">
+          <template v-for="item in sunSafetyIndicators" v-bind:key="item.name">
+            <OcsLight
+              :caption='item.name'
+              type="multi"
+              :tip="item.tip"
+              :value="item.value"
+            />
+          </template>
+        </OcsLightLine>
+
+        <OcsLightLine caption="HWP Interlocks"
+          v-if="platformFeature('hwp')" >
+          <template v-for="item in hwpStats()" v-bind:key="item.label">
+            <OcsLight
+              :caption='item.short'
+              type="multi"
+              :tip="item.tip"
+              :value="item.indicator"
+            />
+          </template>
+        </OcsLightLine>
+
+        <h2>Pointing</h2>
+        <OpReading
+          caption="Activity"
+          :stale="statusIsStale"
+          v-bind:value="currentMotion" />
+        <OpReading
+          caption="Azimuth"
+          :stale="statusIsStale"
+          v-bind:value="currentPosAndMode('Azimuth')">
+        </OpReading>
+        <OpReading
+          caption="Elevation"
+          :stale="statusIsStale"
+          v-bind:value="currentPosAndMode('Elevation')">
+        </OpReading>
+        <OpReading
+          caption="Boresight"
+          v-if="platformFeature('boresight')"
+          :stale="statusIsStale"
+          v-bind:value="currentPosAndMode('Boresight')">
+        </OpReading>
+        <OpReading
+          caption="Co-rotator"
+          v-if="platformFeature('corotator')"
+          :stale="statusIsStale"
+          v-bind:value="currentPosAndMode('Corotator')">
+        </OpReading>
+        <OpReading
+          caption="Timestamp"
+          :stale="statusIsStale"
+          v-bind:value="currentPosAndMode('Timestamp')">
+        </OpReading>
+
+        <h2>Control</h2>
+        <OpDropdown
+          caption="Action Type"
+          :options="motion_types[1]"
+          options_style="object"
+          v-model="motion_control.type"
+        />
+        <form v-on:submit.prevent
+              v-if="motion_control.type == 'const_el'">
+          <OpParam
+            caption="Azimuth center"
+            v-model.number="motion_control.az_center"
+          />
+          <OpParam
+            caption="Azimuth throw"
+            v-model.number="motion_control.az_throw"
+          />
+          <OpParam
+            caption="Scan speed"
+            v-model.number="motion_control.az_speed"
+          />
+          <OpParam
+            caption="Mean accel"
+            v-model.number="motion_control.az_accel"
+          />
+          <div class="ocs_row">
+            <label />
+            <button
+              :disabled="accessLevel < 1"
+              @click="startMotion">Start</button>
+            <button
+              :disabled="accessLevel < 1"
+              @click="stopMotion">Stop</button>
+          </div>
+        </form>
+
+        <form v-on:submit.prevent
+              v-if="motion_control.type == 'goto'">
+          <OpParam
+            caption="Azimuth"
+            v-model.number="motion_control.goto_az"
+          />
+          <OpParam
+            caption="Elevation"
+            v-model.number="motion_control.goto_el"
+          />
+          <div class="ocs_row">
+            <label>Passive if empty</label>
+            <input type="checkbox" id="checkbox" v-model="motion_control.goto_passive"
+                   class="ocs_double" />
+          </div>
+          <div class="ocs_row">
+            <label />
+            <button
+              :disabled="accessLevel < 1"
+              @click="startMotion">Start</button>
+            <button
+              :disabled="accessLevel < 1"
+              @click="stopMotion">Abort</button>
+          </div>
+        </form>
+
+        <form v-on:submit.prevent
+              v-if="motion_control.type == 'goto_named'">
+          <OpDropdown
+            caption="Position"
+            :options="namedPositionsArray"
+            options_style="object"
+            v-model="motion_control.goto_target"
+          />
+          <div class="ocs_row">
+            <label>Set mode=Stop at end?</label>
+            <input type="checkbox" id="checkbox" v-model="motion_control.goto_target_stop"
+                   class="ocs_double" />
+          </div>
+          <div class="ocs_row">
+            <label />
+            <button
+              :disabled="accessLevel < 1"
+              @click="startMotion">Start</button>
+            <button
+              :disabled="accessLevel < 1"
+              @click="stopMotion">Abort</button>
+          </div>
+        </form>
+
+        <form v-on:submit.prevent
+              v-if="motion_control.type == 'sun_stuff'">
+          <OpReading
+            caption="Sun position"
+            :stale="statusIsStale"
+            v-bind:value="sunStat('position')">
+          </OpReading>
+          <OpReading
+            caption="Sun distance"
+            :stale="statusIsStale"
+            v-bind:value="sunStat('distance')">
+          </OpReading>
+          <div class="ocs_row">
+            <label>Reset params</label>
+            <button
+              :disabled="accessLevel < 1"
+              @click="sun('reset')">Go</button>
+          </div>
+          <div class="ocs_row">
+            <label>Escape now</label>
+            <button
+              :disabled="accessLevel < 1"
+              @click="sun('escape')">Go</button>
+          </div>
+          <div class="ocs_row">
+            <label>Enable / Disable mins</label>
+            <button
+              :disabled="accessLevel < 1"
+              @click="sun('enable')">Enable</button>
+            <button
+              :disabled="accessLevel < 1"
+              @click="sun('disable', 30)">Disable, 30 mins</button>
+          </div>
+        </form>
+
+        <form v-on:submit.prevent
+              v-if="motion_control.type == 'hwp_interlock'">
+          <div v-for="item in hwpStats()" :key="item.label">
+            <OpReading
+              :caption="item.label"
+              :stale="statusIsStale"
+              :value="item.value">
+            </OpReading>
+          </div>
+          <div class="ocs_row">
+            <label>Enable / Disable mins</label>
+            <button
+              :disabled="accessLevel < 1"
+              @click="hwp('enable')">Enable</button>
+            <button
+              :disabled="accessLevel < 1"
+              @click="hwp('disable', 30)">Disable</button>
+          </div>
+        </form>
+
+        <form v-on:submit.prevent
+              v-if="motion_control.type == 'shutter'">
+          <OpReading
+            caption="State"
+            :stale="statusIsStale"
+            v-bind:value="shutterStats('shutter')">
+          </OpReading>
+          <OpReading
+            caption="Task"
+            :stale="statusIsStale"
+            v-bind:value="shutterStats('task')">
+          </OpReading>
+          <div class="ocs_row">
+            <label>Move Shutter</label>
+            <button
+              :disabled="accessLevel < 1"
+              @click="shutter('open')">Open</button>
+            <button
+              :disabled="accessLevel < 1"
+              @click="shutter('close')">Close</button>
+          </div>
+
+        </form>
+
+        <h2>Dataset</h2>
+
+          <form v-on:submit.prevent>
+            <div class="acu_row">
+              <span>Group</span>
+              <span>
+                <select v-model="dataset.view" class="dataset_filter">
+                  <option value="all" default>Show all</option>
+                  <option value="nonnom">Show non-nominal readings</option>
+                  <option value="az-only">Show Azimuth</option>
+                  <option value="el-only">Show Elevation</option>
+                  <option value="bore-only" v-if="platformFeature('boresight')">Show Boresight</option>
+                  <option value="corot-only" v-if="platformFeature('corotator')">Show Co-Rotator</option>
+                  <option value="other-only">Show Other</option>
+                  <option value="nothing" default>Show nothing</option>
+                </select>
+              </span>
+            </div>
+            <div class="acu_row">
+              <span>Filter</span>
+              <span><input type="text"
+                           class="acu_double"
+                           v-model="dataset.filter"
+                    /></span>
+            </div>
+          </form>
+
+          <div id="dataset_table">
+            <div class="acu_row acu_header">
+              <span class="acu_value">Value</span>
+              <span class="acu_label">Field</span>
+            </div>
+            <div v-for="item in statusVars" v-bind:key="item.name">
+              <div v-if="(dataset.view=='all' || dataset.view=='nonnom' && (item.classObj.isBad || item.classObj.isActive) || dataset.view==item.props.specialization) && (dataset.filter == '' || item.name.trim().toLowerCase().includes(dataset.filter.trim().toLowerCase()))" class="acu_row">
+                <span class="acu_value"
+                      v-bind:class="item.classObj"
+                >{{ item.value }}</span>
+                <span class="acu_label">{{ item.name }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
     </div>
 
@@ -51,44 +361,129 @@
           caption="El (deg)"
           modelType="blank_to_null"
           v-model.number="ops.go_to.params.el" />
+        <div class="ocs_row">
+          <label>Set mode=Stop at end?</label>
+          <input type="checkbox" id="checkbox" v-model="ops.go_to.params.end_stop"
+           class="ocs_double" />
+        </div>
       </OcsTask>
 
-     <!-- az_scan -->
-     <OcsTask
+      <!-- set_boresight -->
+      <OcsTask
         :show_abort="true"
-        :op_data="ops.az_scan">
+        :op_data="ops.set_boresight">
         <OpParam
-          caption="Start Time (float)"
-          modelType="blank_to_null"
-          v-model.number="ops.az_scan.params.start_time" />
-        <!--
+          caption="Angle (deg)"
+          v-model.number="ops.set_boresight.params.target" />
+        <div class="ocs_row">
+          <label>Set mode=Stop at end?</label>
+          <input type="checkbox" id="checkbox" v-model="ops.set_boresight.params.end_stop"
+           class="ocs_double" />
+        </div>
+      </OcsTask>
+
+      <OcsTask
+        :op_data="ops.stop_and_clear">
+      </OcsTask>
+
+      <OcsProcess
+        :op_data="ops.generate_scan">
         <OpParam
-          caption="Turnaround Time (float)"
-          modelType="blank_to_null"
-          v-model.number="ops.az_scan.params.scan_params.turnaround_time" />
+          caption="az1"
+          v-model.number="ops.generate_scan.params.az_endpoint1" />
         <OpParam
-          caption="Elevation (float)"
-          modelType="blank_to_null"
-          v-model.number="ops.az_scan.params.scan_params.elevation" />
+          caption="az2"
+          v-model.number="ops.generate_scan.params.az_endpoint2" />
+        <OpDropdown
+          caption="az start"
+          :options="start_types"
+          v-model="ops.generate_scan.params.az_start"
+        />
         <OpParam
-          caption="Speed (float)"
-          modelType="blank_to_null"
-          v-model.number="ops.az_scan.params.scan_params.speed" />
+          caption="el1"
+          v-model.number="ops.generate_scan.params.el_endpoint1" />
         <OpParam
-          caption="Number of Scans (int)"
-          modelType="blank_to_null"
-          v-model.number="ops.az_scan.params.scan_params.num_scans" />
+          caption="el2"
+          v-model.number="ops.generate_scan.params.el_endpoint2" />
         <OpParam
-          caption="Az min (float)"
+          caption="az_speed"
           modelType="blank_to_null"
-          v-model.number="ops.az_scan.params.scan_params.azimuth_range[0]" />
+          v-model.number="ops.generate_scan.params.az_speed" />
         <OpParam
-          caption="Az max (float)"
+          caption="el_speed"
           modelType="blank_to_null"
-          v-model.number="ops.az_scan.params.scan_params.azimuth_range[1]" />
-          --> 
-     </OcsTask>
+          v-model.number="ops.generate_scan.params.el_speed" />
+        <OpParam
+          caption="az_accel"
+          modelType="blank_to_null"
+          v-model.number="ops.generate_scan.params.az_accel" />
+        <OpParam
+          caption="az_drift"
+          modelType="blank_to_null"
+          v-model.number="ops.generate_scan.params.az_drift" />
+        <OpParam
+          caption="num_scans"
+          modelType="blank_to_null"
+          v-model.number="ops.generate_scan.params.num_scans" />
+        <OpParam
+          caption="wait_to_start"
+          modelType="blank_to_null"
+          v-model.number="ops.generate_scan.params.wait_to_start" />
+        <OpParam
+          caption="step_time"
+          modelType="blank_to_null"
+          v-model.number="ops.generate_scan.params.step_time" />
+      </OcsProcess>
+
+      <!-- Sun Block -->
+
+      <OcsProcess
+        :op_data="ops.monitor_sun" />
+      <OcsTask
+        :op_data="ops.update_sun" />
+      <OcsTask
+        :op_data="ops.escape_sun_now" />
+
+      <!-- HWP Block -->
+
+      <OcsProcess
+        :op_data="ops.monitor_hwp" />
+      <OcsTask
+        :op_data="ops.update_hwp" />
+
+      <!-- Scan / Move parameters -->
+
+      <OcsTask
+        :op_data="ops.set_speed_mode">
+        <OpDropdown
+          caption="mode"
+          :options="speed_modes"
+          v-model="ops.set_speed_mode.params.speed_mode"
+        />
+      </OcsTask>
+
+      <!-- Background processes -->
+
+      <OcsTask
+        :op_data="ops.clear_faults"
+      />
+
+      <OcsProcess
+        :op_data="ops.monitor"
+      />
+      <OcsProcess
+        :op_data="ops.broadcast"
+      />
+      <OcsProcess
+        :op_data="ops.restart_idle"
+      />
+
+      <OcsOpAutofill
+        :ops_parent="ops"
+      />
+
     </div>
+
   </div>
 </template>
 
@@ -130,17 +525,6 @@
             params: {az: 180,
                      el: 60,
                      // end_stop: true,
-            },
-          },
-          az_scan: {
-            params: {
-              start_time: 0,
-              turnaround_time: 0,
-              elevation: 0,
-              speed: 0,
-              num_scans: 0,
-              az_min: 0,
-              az_max: 0,
             },
           },
           set_boresight: {
