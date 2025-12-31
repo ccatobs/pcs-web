@@ -47,15 +47,15 @@
             <span class="hm_center">{{ item.next_action }}</span>
             <span class="hm_center">{{ item.target_state }}</span>
             <button :disabled="accessLevel < 1" @click="set_target(item, 'up')">up</button>
-            <button :disabled="accessLevel < 1" @click.stop="openPopup(item)">down</button>
-          </div>
-          <div v-if="currentlyOpenPopupId" class="popup-container" id="popup" style="background-color: rgba(0,0,0,0.4);">
-            <div class="popup-content">
-              <h2>Warning!</h2>
-              <p>{{ currentlyOpenPopupId.instance_id }}</p>
-              <p>This container is essential to PCS operations. Do you wish to proceed?</p>
-              <button @click="set_target(currentlyOpenPopupId, 'down'); closePopup()">Bring down container</button>
-              <button @click="closePopup()">Return</button>
+            <button :disabled="accessLevel < 1" @click="openPopup('{{ item.instance_id }}')">down</button>
+            <div class="popup-container" id="popup-{{ item.instance_id }}">
+              <div class="popup-content">
+                <h2>Warning!</h2>
+                <p>{{ item.instance_id }}</p>
+                <p>This container is essential to PCS operations. Do you wish to proceed?</p>
+                <button @click="set_target(item, 'down'); closePopup('{{ item.instance_id }}')">Bring down container</button>
+                <button @click="closePopup('{{ item.instance_id }}')">Return</button>
+              </div>
             </div>
           </div>
         </form>
@@ -85,6 +85,8 @@
 </template>
 
 <script>
+  import { ref } from 'vue';
+  const currentlyOpenPopupId = ref(null);
   export default {
     name: 'HostManager',
     inject: ['accessLevel'],
@@ -93,7 +95,6 @@
         panel: {},
         children: [],
         children_essential: [],
-        currentlyOpenPopupId: null,
         ops: window.ocs_bundle.web.ops_data_init({
           'manager': {},
           'update': {
@@ -122,13 +123,13 @@
                                .map(state => [sortKey(state), state])
                                .toSorted()
                                .map(([,state]) => state)
-                               .filter(state => state.instance_id !== "aggregator" && state.instance_id !== "registry" && state.instance_id !== "pcs-influxdb-publisher" && state.instance_id !== "ocs-util");
+                               .filter(state => state.instance_id !== "aggregator" && state.instance_id !== "registry" && state.instance_id !== "pcs-influxdb-publisher" && state.instance_id !== "ls240-lsa2hj8");
 
         this.children_essential = session.data.child_states
                                          .map(state => [sortKey(state), state])
                                          .toSorted()
                                          .map(([,state]) => state)
-                                         .filter(state => state.instance_id === "aggregator" || state.instance_id === "registry" || state.instance_id === "pcs-influxdb-publisher" || state.instance_id === "ocs-util"); 
+                                         .filter(state => state.instance_id === "aggregator" || state.instance_id === "registry" || state.instance_id === "pcs-influxdb-publisher" || state.instance_id === "ls240-lsa2hj8"); 
       },
       set_target(child, updn) {
         child.target_state = '(' + updn + ')';
@@ -144,14 +145,14 @@
         this.panel.client.add_watcher('manager', 5., this.update_child_states);
       },
       openPopup(container) {
-        this.currentlyOpenPopupId = container;
-        let popup = document.getElementById("popup");
-        popup.style.display = "flex";
+        currentlyOpenPopupId.value = container;
+        let popup = document.getElementById(`popup-${container}`);
+        popup.style.display = "flex"; /* or 'block', 'flex' for centering */
       },
-      closePopup() {
-        let popup = document.getElementById("popup"); 
+      closePopup(container) {
+        currentlyOpenPopupId.value = null;
+        let popup = document.getElementById(`popup-${container}`);
         popup.style.display = "none";
-        this.currentlyOpenPopupId = null;
       },
     },
   }
