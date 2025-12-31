@@ -122,13 +122,13 @@
                                .map(state => [sortKey(state), state])
                                .toSorted()
                                .map(([,state]) => state)
-                               .filter(state => state.instance_id !== "aggregator" && state.instance_id !== "registry" && state.instance_id !== "pcs-influxdb-publisher" && state.instance_id !== "ocs-util");
+                               .filter(state => state.instance_id !== "daq-aggregator" && state.instance_id !== "daq-registry" && state.instance_id !== "daq-influxpub" && state.instance_id !== "ocs-util");
 
         this.children_essential = session.data.child_states
                                          .map(state => [sortKey(state), state])
                                          .toSorted()
                                          .map(([,state]) => state)
-                                         .filter(state => state.instance_id === "aggregator" || state.instance_id === "registry" || state.instance_id === "pcs-influxdb-publisher" || state.instance_id === "ocs-util"); 
+                                         .filter(state => state.instance_id === "daq-aggregator" || state.instance_id === "daq-registry" || state.instance_id === "daq-influxpub" || state.instance_id === "ocs-util"); 
       },
       set_target(child, updn) {
         child.target_state = '(' + updn + ')';
