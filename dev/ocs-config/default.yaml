@@ -1,0 +1,11 @@
+# The actual connection details are provided via command line args,
+# but OCS seems to require that this file exists.
+
+hub:
+  wamp_server: 'ws://localhost:8001/ws'
+  wamp_realm: 'test_realm'
+  address_root: 'observatory'
+
+hosts:
+  localhost:
+    agent-instances: []

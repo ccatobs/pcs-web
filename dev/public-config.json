@@ -1,0 +1,14 @@
+{
+  "crossbars": [
+    {
+      "name": "Local Dev",
+      "url": "ws://localhost:8001/ws",
+      "realm": "test_realm",
+      "addr_root": "observatory",
+      "styling": {
+        "banner": "PCS Dev Environment",
+        "background": "#8b949e"
+      }
+    }
+  ]
+}

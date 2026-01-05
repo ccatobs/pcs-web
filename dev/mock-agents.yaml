@@ -1,0 +1,34 @@
+# Mock Agent Development Configuration
+# 
+# Edit this file to control which agents start and how they connect.
+# Available agents are auto-discovered from ../agent/*.yaml
+#
+# Run `python start_mock_agents.py --list` to see all available agents.
+
+crossbar:
+  url: "ws://localhost:8001/ws"
+  realm: "test_realm"
+  address_root: "observatory"
+
+# Agents to start (uncomment/comment to enable/disable)
+agents:
+  # Temperature & Environment
+  - lakeshore240.yaml
+  - lakeshore372.yaml
+  - cryomech-cpa-agent.yaml
+  
+  # Power Management
+  - synaccessagent.yaml
+  - upsagent.yaml
+  # - ibootbaragent.yaml
+  # - ds378-agent.yaml
+  
+  # System Management
+  - hostmanager.yaml
+  
+  # Telescope/Instrument
+  # - acuagent.yaml
+  # - hwpsupervisor.yaml
+  # - rotationagent.yaml
+  # - pysmurf-controller.yaml
+  # - crate-agent.yaml

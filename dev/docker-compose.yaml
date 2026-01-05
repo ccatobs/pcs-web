@@ -1,0 +1,8 @@
+services:
+  crossbar:
+    image: crossbario/crossbar:latest
+    container_name: ocs-crossbar
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./crossbar-config:/node/.crossbar
