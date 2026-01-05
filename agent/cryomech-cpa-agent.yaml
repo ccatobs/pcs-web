@@ -1,0 +1,20 @@
+agent_class: 'CryomechCPAAgent'
+instance_id: 'cryomech-cpa-1'
+
+processes:
+  acq:
+    startup: true
+    data_settings:
+      timestamp_field: 'timestamp'
+    data:
+      Compressor_State:
+        status: 1
+        description: "On"
+      timestamp: 0
+
+tasks:
+  init:
+    run_time: 2
+  
+  power_ptc:
+    run_time: 3
