@@ -1,0 +1,33 @@
+# Currently implements:
+# - broadcast process: UDP stream with position data
+# - execute_scan process: placeholder for automated scans
+# - go_to task: move telescope to az/el position
+# - az_scan task: azimuth scan at constant elevation (params wrapped in scan_params dict)
+# - fromfile_scan task: scan from predefined file
+
+agent_class: "ACUAgent"
+instance_id: "acu-pcs-1"
+
+processes:
+  broadcast:
+    startup: true
+    data_settings:
+      timestamp_field: "Time"
+    data:
+      Time: 1706500000.0
+      Azimuth: 180.0
+      Elevation: 60.0
+      Azimuth_Velocity: 0.0
+      Elevation_Velocity: 0.0
+
+  # Currently just 'pass' in the real agent
+  execute_scan:
+    data: {}
+
+tasks:
+  go_to:
+    run_time: 3
+  az_scan:
+    run_time: 5
+  fromfile_scan:
+    run_time: 3

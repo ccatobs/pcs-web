@@ -3,13 +3,11 @@
 # Edit this file to control which agents start and how they connect.
 # Available agents are auto-discovered from ../agent/*.yaml
 #
-# Run `python start_mock_agents.py --list` to see all available agents.
-
+# Run `python start_mock_agents.py --list` to see all available agents (or just look in ../agent/).
 crossbar:
   url: "ws://localhost:8001/ws"
   realm: "test_realm"
   address_root: "observatory"
-
 # Agents to start (uncomment/comment to enable/disable)
 agents:
   # Temperature & Environment
@@ -20,6 +18,7 @@ agents:
   # Power Management
   - synaccessagent.yaml
   - upsagent.yaml
+  - raritan-agent.yaml
   # - ibootbaragent.yaml
   # - ds378-agent.yaml
   
@@ -27,6 +26,7 @@ agents:
   - hostmanager.yaml
   
   # Telescope/Instrument
+  - acu-pcs-agent.yaml
   # - acuagent.yaml
   # - hwpsupervisor.yaml
   # - rotationagent.yaml
