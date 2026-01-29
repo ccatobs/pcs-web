@@ -1,0 +1,122 @@
+agent_class: 'RaritanAgent'
+instance_id: 'raritan-pdu-1'
+
+processes:
+  acq:
+    startup: true
+    data_settings:
+      timestamp_field: 'timestamp'
+    data:
+      outletSwitchingState_1_01:
+        name: 'Cryocooler'
+        locked: true
+        description: 'on'
+      outletSwitchingState_1_02:
+        name: 'Lakeshore-1'
+        locked: false
+        description: 'on'
+      outletSwitchingState_1_03:
+        name: 'Lakeshore-2'
+        locked: false
+        description: 'off'
+      outletSwitchingState_1_04:
+        name: 'Network-Switch'
+        locked: true
+        description: 'on'
+      outletSwitchingState_1_05:
+        name: 'DAQ-Server'
+        locked: false
+        description: 'on'
+      outletSwitchingState_1_06:
+        name: 'Spare-1'
+        locked: false
+        description: 'off'
+      outletSwitchingState_1_07:
+        name: 'Motor-Controller'
+        locked: false
+        description: 'on'
+      outletSwitchingState_1_08:
+        name: 'UPS-Monitor'
+        locked: false
+        description: 'on'
+      outletSwitchingState_1_09:
+        name: 'HK-Computer'
+        locked: false
+        description: 'on'
+      outletSwitchingState_1_10:
+        name: 'Spare-2'
+        locked: false
+        description: 'off'
+      outletSwitchingState_1_11:
+        name: 'Calibrator'
+        locked: false
+        description: 'on'
+      outletSwitchingState_1_12:
+        name: 'Power-Supply-1'
+        locked: false
+        description: 'on'
+      outletSwitchingState_1_13:
+        name: 'Spare-3'
+        locked: false
+        description: 'off'
+      outletSwitchingState_1_14:
+        name: 'Encoder'
+        locked: false
+        description: 'on'
+      outletSwitchingState_1_15:
+        name: 'SMuRF-Carrier'
+        locked: true
+        description: 'on'
+      outletSwitchingState_1_16:
+        name: 'SMuRF-RTM'
+        locked: true
+        description: 'on'
+      outletSwitchingState_1_17:
+        name: 'Spare-4'
+        locked: false
+        description: 'off'
+      outletSwitchingState_1_18:
+        name: 'Vacuum-Pump'
+        locked: false
+        description: 'on'
+      outletSwitchingState_1_19:
+        name: 'Turbo-Pump'
+        locked: false
+        description: 'on'
+      outletSwitchingState_1_20:
+        name: 'Spare-5'
+        locked: false
+        description: 'off'
+      outletSwitchingState_1_21:
+        name: 'HWP-Motor'
+        locked: false
+        description: 'on'
+      outletSwitchingState_1_22:
+        name: 'HWP-Encoder'
+        locked: false
+        description: 'on'
+      outletSwitchingState_1_23:
+        name: 'Spare-6'
+        locked: false
+        description: 'off'
+      outletSwitchingState_1_24:
+        name: 'Emergency-Light'
+        locked: true
+        description: 'on'
+
+      pdu_connection:
+        connected: true
+        last_attempt: 1656085022.680916
+
+      address: '10.10.10.50'
+      timestamp: 1656085022.680916
+
+tasks:
+  set_outlet:
+    run_time: 2
+
+  cycle_outlet:
+    run_time: 4
+  
+  lock_outlet:
+    run_time: 1
