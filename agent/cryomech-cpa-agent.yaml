@@ -1,20 +1,68 @@
-agent_class: 'CryomechCPAAgent'
-instance_id: 'cryomech-cpa-1'
+agent_class: "CryomechCPAAgent"
+instance_id: "cryomech-cpa-1"
 
 processes:
   acq:
     startup: true
     data_settings:
-      timestamp_field: 'timestamp'
+      timestamp_field: "timestamp"
     data:
       Compressor_State:
         status: 1
         description: "On"
+      Coolant_In:
+        status: 18.5
+        description: "18.5 C"
+      Coolant_Out:
+        status: 22.3
+        description: "22.3 C"
+      Oil_Temp:
+        status: 35.2
+        description: "35.2 C"
+      Helium_Temp:
+        status: 42.1
+        description: "42.1 C"
+      Low_Pressure:
+        status: 78.5
+        description: "78.5 psi"
+      Low_Pressure_Average:
+        status: 77.8
+        description: "77.8 psi"
+      High_Pressure:
+        status: 285.3
+        description: "285.3 psi"
+      High_Pressure_Average:
+        status: 284.1
+        description: "284.1 psi"
+      Delta_Pressure_Average:
+        status: 206.3
+        description: "206.3 psi"
+      Motor_Current:
+        status: 5.8
+        description: "5.8 A"
+      Hours_of_Operation:
+        status: 12847
+        description: "12847 hrs"
+      Pressure_Unit:
+        status: "psi"
+        description: "psi"
+      Temp_Unit:
+        status: "C"
+        description: "C"
+      Serial_Number:
+        status: "CPA1234567"
+        description: "CPA1234567"
+      Model:
+        status: "CPA1114"
+        description: "CPA1114"
+      Software_Revision:
+        status: "3.14"
+        description: "3.14"
       timestamp: 0
 
 tasks:
   init:
     run_time: 2
-  
+
   power_ptc:
     run_time: 3

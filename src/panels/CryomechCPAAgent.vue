@@ -31,20 +31,12 @@ specialized agent panels.
           v-bind:value="panel.connection_ok">
         </OpReading>
         <h2>Status</h2>
-        <!--
-        <OpReading
-          caption="Compressor State"
-          v-bind:value="status">
-        </OpReading>
-        -->
-        <!--
         <div v-for="chan in statusData"
              v-bind:key="chan[0]">
           <OpReading
             :caption="chan[0]"
             v-bind:value="chan[1]" />
         </div>
-        -->
       </div>
     </div>
 
@@ -72,12 +64,6 @@ specialized agent panels.
             :disabled="accessLevel < 1"
             @click="set_ptc_state(false)">Off</button>
         </div>
-        <!--
-        <OpParam
-          caption="State (on or off)"
-          modelType="blank_to_null"
-          v-model.number="ops.power_ptc.params.state" />
-        -->
       </OcsTask>
     </div>
 
@@ -99,6 +85,15 @@ specialized agent panels.
             name: "Status",
             fields: [
               {key: "Compressor_State", label: "Compressor State"},
+              {key: "Coolant_In", label: "Coolant In"},
+              {key: "Coolant_Out", label: "Coolant Out"},
+              {key: "Oil_Temp", label: "Oil Temp"},
+              {key: "Helium_Temp", label: "Helium Temp"},
+              {key: "Low_Pressure", label: "Low Pressure"},
+              {key: "High_Pressure", label: "High Pressure"},
+              {key: "Delta_Pressure_Average", label: "Delta Pressure Avg"},
+              {key: "Motor_Current", label: "Motor Current"},
+              {key: "Hours_of_Operation", label: "Hours of Operation"},
             ]
           },
         },
@@ -109,13 +104,10 @@ specialized agent panels.
     },
     computed: {
       statusData() {
-        return this.formatData('status');
-      },
-      formatData(group_name) {
-        let field_data = this.ops.acq.pub_data;
         let new_data = [];
+        let field_data = this.ops.acq.session.data;
         if (field_data) {
-          this.groups[group_name].fields.forEach(function(field) {
+          this.groups.status.fields.forEach(function(field) {
             let label = field.label ? field.label : field.key;
             let data = field_data[field.key];
             let raw_data = data ? data.description : "?";
