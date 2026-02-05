@@ -27,10 +27,6 @@
         </OpReading>
         <OpReading caption="Elevation" :stale="broadcastIsStale" v-bind:value="currentPosition('Elevation')">
         </OpReading>
-        <OpReading caption="Az Velocity" :stale="broadcastIsStale" v-bind:value="currentPosition('Azimuth_Velocity')">
-        </OpReading>
-        <OpReading caption="El Velocity" :stale="broadcastIsStale" v-bind:value="currentPosition('Elevation_Velocity')">
-        </OpReading>
         <OpReading caption="Timestamp" :stale="broadcastIsStale" v-bind:value="broadcastTimestamp">
         </OpReading>
 
