@@ -41,6 +41,62 @@
         :op_data="ops.acq"
       />
 
+      <div class="box cal_section">
+        <h3>Calibration Curve Operations</h3>
+
+        <div v-if="isAcqRunning" class="warning_text">
+          Stop the acq process before modifying calibration curves.
+        </div>
+
+        <OcsTask :show_start="false" :op_data="ops.get_curve_header">
+          <OpParam
+            caption="Channel (1-8)"
+            v-model.number="ops.get_curve_header.params.channel" />
+          <div class="ocs_row">
+            <label></label>
+            <button :disabled="accessLevel < 1 || isAcqRunning" @click="startGetCurveHeader()">Start</button>
+          </div>
+        </OcsTask>
+
+        <div v-if="hasCurveHeaderData" class="curve_header_results">
+          <OpReading
+            caption="Sensor Model"
+            :value="curveHeader.Sensor_Model" />
+          <OpReading
+            caption="Serial Number"
+            :value="curveHeader.Serial_Number" />
+          <OpReading
+            caption="Data Format"
+            :value="curveHeader.Data_Format" />
+          <OpReading
+            caption="SetPoint Limit"
+            :value="curveHeader.SetPoint_Limit" />
+          <OpReading
+            caption="Temp Coefficient"
+            :value="curveHeader.Temperature_Coefficient" />
+          <OpReading
+            caption="Breakpoints"
+            :value="curveHeader.Number_of_Breakpoints" />
+          <div class="queried_channel">
+            Channel {{ lastQueriedChannel }}
+          </div>
+        </div>
+
+        <OcsTask :show_start="false" :op_data="ops.upload_cal_curve">
+          <OpParam
+            caption="Channel (1-8)"
+            v-model.number="ops.upload_cal_curve.params.channel" />
+          <OpParam
+            caption="File Path"
+            v-model="ops.upload_cal_curve.params.filename" />
+          <div class="ocs_row">
+            <label></label>
+            <button :disabled="accessLevel < 1 || isAcqRunning" @click="startUploadCalCurve()">Start</button>
+          </div>
+        </OcsTask>
+        <div class="help_text">File path is on the agent host system.</div>
+      </div>
+
       <OcsOpAutofill
         :ops_parent="ops"
       />
@@ -62,11 +118,28 @@
         panel: {},
         extension: 5,
         precision: 3,
+        lastQueriedChannel: null,
         ops: window.ocs_bundle.web.ops_data_init({
           init_lakeshore: {},
           acq: {},
+          get_curve_header: {
+            params: { channel: 1 },
+          },
+          upload_cal_curve: {
+            params: { channel: 1, filename: '' },
+          },
         }),
       }
+    },
+    methods: {
+      startGetCurveHeader() {
+        window.ocs_bundle.ui_run_task(this.address, 'get_curve_header',
+                                      this.ops.get_curve_header.params);
+      },
+      startUploadCalCurve() {
+        window.ocs_bundle.ui_run_task(this.address, 'upload_cal_curve',
+                                      this.ops.upload_cal_curve.params);
+      },
     },
     computed: {
       computedChannels() {
@@ -90,6 +163,23 @@
           });
         }
         return new_data;
+      },
+      isAcqRunning() {
+        let status = this.ops.acq.session.status;
+        return status == 'running' || status == 'starting';
+      },
+      curveHeader() {
+        return this.ops.get_curve_header.session.data || {};
+      },
+      hasCurveHeaderData() {
+        return Object.keys(this.curveHeader).length > 0;
+      },
+    },
+    watch: {
+      'ops.get_curve_header.session.status'(newVal) {
+        if (newVal == 'done') {
+          this.lastQueriedChannel = this.ops.get_curve_header.params.channel;
+        }
       },
     },
   }
@@ -116,5 +206,28 @@
   }
   .data_table > div:first-child {
     background-color: #fff;
+  }
+  .cal_section {
+    margin-top: 10px;
+  }
+  .warning_text {
+    color: #c00;
+    font-weight: bold;
+    padding: 5px 0;
+  }
+  .help_text {
+    font-size: 9pt;
+    color: #666;
+    padding: 2px 10px;
+  }
+  .curve_header_results {
+    background-color: #f8f;
+    padding: 5px;
+    margin: 5px 0;
+  }
+  .queried_channel {
+    font-size: 9pt;
+    color: #666;
+    text-align: right;
   }
 </style>
