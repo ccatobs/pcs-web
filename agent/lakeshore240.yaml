@@ -21,4 +21,18 @@ processes:
 tasks:
   init_lakeshore: {}
   set_values: {}
-  upload_cal_curve: {}
+  get_values: {}
+  get_curve_header:
+    run_time: 1
+    data:
+      Sensor_Model: 'DT-670'
+      Serial_Number: 'D12345'
+      Data_Format: 4
+      SetPoint_Limit: 500.0
+      Temperature_Coefficient: 1
+      Number_of_Breakpoints: 200
+  upload_cal_curve:
+    run_time: 3
+    data:
+      success: true
+      message: 'Calibration curve uploaded successfully'
