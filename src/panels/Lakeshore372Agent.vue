@@ -335,6 +335,59 @@
           />
       </OcsTask>
 
+      <div class="box cal_section">
+        <h3>Calibration Curve Operations</h3>
+
+        <OcsTask :op_data="ops.get_calibration_curve">
+          <OpParam
+            caption="Channel (0=A, 1-16)"
+            v-model.number="ops.get_calibration_curve.params.channel" />
+          <OpReading
+            caption="Assigned Curve"
+            :value="ops.get_calibration_curve.session.data.assigned_curve" />
+        </OcsTask>
+
+        <OcsTask :op_data="ops.set_calibration_curve">
+          <OpParam
+            caption="Channel (0=A, 1-16)"
+            v-model.number="ops.set_calibration_curve.params.channel" />
+          <OpParam
+            caption="Curve Number (21-59)"
+            v-model.number="ops.set_calibration_curve.params.curve_number" />
+        </OcsTask>
+
+        <OcsTask :op_data="ops.upload_cal_curve">
+          <OpParam
+            caption="Curve Slot (21-59)"
+            v-model.number="ops.upload_cal_curve.params.curve_slot" />
+          <OpParam
+            caption="File Path"
+            v-model="ops.upload_cal_curve.params.file_path" />
+        </OcsTask>
+        <div class="help_text">File path is on the agent host system.</div>
+
+        <!-- get_curve_list: DEFERRED for now, as the agent doesn't yet parse the returned curve list into session.data.
+             The agent currently returns curve data as a string in the return
+             message, not in session.data.
+
+        <OcsTask :op_data="ops.get_curve_list">
+          <div v-if="Object.keys(ops.get_curve_list.session.data.curves || {}).length > 0"
+               class="curve_list_results">
+            <div class="data_row header">
+              <span>Slot</span><span>Serial</span><span>Name</span>
+            </div>
+            <div class="data_row"
+                 v-for="(info, slot) in ops.get_curve_list.session.data.curves"
+                 :key="slot">
+              <span>{{ slot }}</span>
+              <span>{{ info.serial || '(empty)' }}</span>
+              <span>{{ info.name || '(empty)' }}</span>
+            </div>
+          </div>
+        </OcsTask>
+        -->
+      </div>
+
       <OcsOpAutofill
         :ops_parent="ops"
       />
@@ -394,6 +447,17 @@
           engage_channel: {},
           engage_autorange: {},
           input_configfile: {},
+
+          set_calibration_curve: {
+            params: { channel: 1, curve_number: 21 },
+          },
+          get_calibration_curve: {
+            params: { channel: 1 },
+          },
+          upload_cal_curve: {
+            params: { curve_slot: 21, file_path: '' },
+          },
+          get_curve_list: {},
 
           // Note enable/disable_control_chan handled in single widget.
           enable_control_chan: {},
@@ -469,5 +533,13 @@
   }
   .data_table > div:first-child {
     background-color: #fff;
+  }
+  .cal_section {
+    margin-top: 10px;
+  }
+  .help_text {
+    font-size: 9pt;
+    color: #666;
+    padding: 2px 10px;
   }
 </style>

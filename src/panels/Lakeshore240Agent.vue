@@ -97,6 +97,71 @@
         <div class="help_text">File path is on the agent host system.</div>
       </div>
 
+      <div class="box cal_section">
+        <h3>Channel Configuration</h3>
+
+        <div v-if="isAcqRunning" class="warning_text">
+          Stop the acq process before modifying channel values.
+        </div>
+
+        <OcsTask :show_start="false" :op_data="ops.get_values">
+          <OpParam
+            caption="Channel (1-8)"
+            v-model.number="ops.get_values.params.channel" />
+          <div class="ocs_row">
+            <label></label>
+            <button :disabled="accessLevel < 1 || isAcqRunning"
+                    @click="startGetValues()">Start</button>
+          </div>
+          <div v-for="item in Object.entries(ops.get_values.session.data)"
+               v-bind:key="item[0]">
+            <OpReading
+              v-if="item[0] !== 'last_update'"
+              :caption="item[0]"
+              :value="item[1]" />
+          </div>
+        </OcsTask>
+
+        <OcsTask :show_start="false" :op_data="ops.set_values">
+          <OpParam
+            caption="Channel (1-8)"
+            v-model.number="ops.set_values.params.channel" />
+          <OpParam
+            caption="Sensor (1=Diode, 2=Plat, 3=NTC)"
+            modelType="blank_to_null"
+            v-model.number="ops.set_values.params.sensor" />
+          <OpParam
+            caption="Auto Range (0=Off, 1=On)"
+            modelType="blank_to_null"
+            v-model.number="ops.set_values.params.auto_range" />
+          <OpParam
+            caption="Range (0-8, NTC only)"
+            modelType="blank_to_null"
+            v-model.number="ops.set_values.params.range" />
+          <OpParam
+            caption="Current Reversal (0=Off, 1=On)"
+            modelType="blank_to_null"
+            v-model.number="ops.set_values.params.current_reversal" />
+          <OpParam
+            caption="Units (1=K, 2=C, 3=Sensor, 4=F)"
+            modelType="blank_to_null"
+            v-model.number="ops.set_values.params.units" />
+          <OpParam
+            caption="Enabled (0=Off, 1=On)"
+            modelType="blank_to_null"
+            v-model.number="ops.set_values.params.enabled" />
+          <OpParam
+            caption="Name"
+            modelType="blank_to_null"
+            v-model="ops.set_values.params.name" />
+          <div class="ocs_row">
+            <label></label>
+            <button :disabled="accessLevel < 1 || isAcqRunning"
+                    @click="startSetValues()">Start</button>
+          </div>
+        </OcsTask>
+      </div>
+
       <OcsOpAutofill
         :ops_parent="ops"
       />
@@ -128,6 +193,21 @@
           upload_cal_curve: {
             params: { channel: 1, filename: '' },
           },
+          get_values: {
+            params: { channel: 1 },
+          },
+          set_values: {
+            params: {
+              channel: 1,
+              sensor: null,
+              auto_range: null,
+              range: null,
+              current_reversal: null,
+              units: null,
+              enabled: null,
+              name: null,
+            },
+          },
         }),
       }
     },
@@ -139,6 +219,14 @@
       startUploadCalCurve() {
         window.ocs_bundle.ui_run_task(this.address, 'upload_cal_curve',
                                       this.ops.upload_cal_curve.params);
+      },
+      startGetValues() {
+        window.ocs_bundle.ui_run_task(this.address, 'get_values',
+                                      this.ops.get_values.params);
+      },
+      startSetValues() {
+        window.ocs_bundle.ui_run_task(this.address, 'set_values',
+                                      this.ops.set_values.params);
       },
     },
     computed: {

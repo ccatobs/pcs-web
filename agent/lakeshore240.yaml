@@ -20,8 +20,18 @@ processes:
         }
 tasks:
   init_lakeshore: {}
-  set_values: {}
-  get_values: {}
+  set_values:
+    data:
+      message: 'Channel values set successfully'
+  get_values:
+    run_time: 1
+    data:
+      sensor: 1
+      auto_range: 1
+      range: 0
+      current_reversal: 0
+      units: 1
+      enabled: 1
   get_curve_header:
     run_time: 1
     data:
