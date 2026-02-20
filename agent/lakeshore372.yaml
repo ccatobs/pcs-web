@@ -47,7 +47,30 @@ tasks:
   servo_to_temperature: {}
   set_active_channel: {}
   set_autoscan: {}
-  set_calibration_curve: {}
+  set_calibration_curve:
+    data:
+      message: 'Curve assigned successfully'
+
+  get_calibration_curve:
+    run_time: 1
+    data:
+      assigned_curve: 34
+
+  upload_cal_curve:
+    run_time: 3
+    data:
+      success: true
+      message: 'Calibration curve uploaded successfully'
+
+  get_curve_list:
+    run_time: 2
+    data:
+      curves:
+        21: {serial: 'X12345', name: 'DT-670'}
+        22: {serial: 'X12346', name: 'CX-1050'}
+        23: {serial: '', name: ''}
+        24: {serial: '', name: ''}
+
   set_dwell: {}
   set_excitation: {}
   set_excitation_mode: {}
