@@ -126,30 +126,35 @@
           <OpParam
             caption="Channel (1-8)"
             v-model.number="ops.set_values.params.channel" />
-          <OpParam
-            caption="Sensor (1=Diode, 2=Plat, 3=NTC)"
-            modelType="blank_to_null"
-            v-model.number="ops.set_values.params.sensor" />
-          <OpParam
-            caption="Auto Range (0=Off, 1=On)"
-            modelType="blank_to_null"
-            v-model.number="ops.set_values.params.auto_range" />
+          <OpDropdown
+            caption="Sensor"
+            options_style="object"
+            :options="{'': '(no change)', '1': 'Diode', '2': 'Plat RTC', '3': 'NTC RTD'}"
+            v-model="ops.set_values.params.sensor" />
+          <OpDropdown
+            caption="Auto Range"
+            options_style="object"
+            :options="{'': '(no change)', '0': 'Off', '1': 'On'}"
+            v-model="ops.set_values.params.auto_range" />
           <OpParam
             caption="Range (0-8, NTC only)"
             modelType="blank_to_null"
             v-model.number="ops.set_values.params.range" />
-          <OpParam
-            caption="Current Reversal (0=Off, 1=On)"
-            modelType="blank_to_null"
-            v-model.number="ops.set_values.params.current_reversal" />
-          <OpParam
-            caption="Units (1=K, 2=C, 3=Sensor, 4=F)"
-            modelType="blank_to_null"
-            v-model.number="ops.set_values.params.units" />
-          <OpParam
-            caption="Enabled (0=Off, 1=On)"
-            modelType="blank_to_null"
-            v-model.number="ops.set_values.params.enabled" />
+          <OpDropdown
+            caption="Current Reversal"
+            options_style="object"
+            :options="{'': '(no change)', '0': 'Off', '1': 'On'}"
+            v-model="ops.set_values.params.current_reversal" />
+          <OpDropdown
+            caption="Units"
+            options_style="object"
+            :options="{'': '(no change)', '1': 'Kelvin', '2': 'Celsius', '3': 'Sensor', '4': 'Fahrenheit'}"
+            v-model="ops.set_values.params.units" />
+          <OpDropdown
+            caption="Channel State"
+            options_style="object"
+            :options="{'': '(no change)', '0': 'Disabled', '1': 'Enabled'}"
+            v-model="ops.set_values.params.enabled" />
           <OpParam
             caption="Name"
             modelType="blank_to_null"
@@ -199,12 +204,12 @@
           set_values: {
             params: {
               channel: 1,
-              sensor: null,
-              auto_range: null,
+              sensor: '',
+              auto_range: '',
               range: null,
-              current_reversal: null,
-              units: null,
-              enabled: null,
+              current_reversal: '',
+              units: '',
+              enabled: '',
               name: null,
             },
           },
@@ -225,8 +230,11 @@
                                       this.ops.get_values.params);
       },
       startSetValues() {
-        window.ocs_bundle.ui_run_task(this.address, 'set_values',
-                                      this.ops.set_values.params);
+        let params = {...this.ops.set_values.params};
+        for (let key of ['sensor', 'auto_range', 'current_reversal', 'units', 'enabled']) {
+          params[key] = params[key] === '' ? null : Number(params[key]);
+        }
+        window.ocs_bundle.ui_run_task(this.address, 'set_values', params);
       },
     },
     computed: {
