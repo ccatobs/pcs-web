@@ -65,11 +65,10 @@ tasks:
   get_curve_list:
     run_time: 2
     data:
-      curves:
-        21: {serial: 'X12345', name: 'DT-670'}
-        22: {serial: 'X12346', name: 'CX-1050'}
-        23: {serial: '', name: ''}
-        24: {serial: '', name: ''}
+      21: {serial: 'X12345'}
+      22: {serial: 'X12346'}
+      23: {serial: ''}
+      24: {serial: ''}
 
   set_dwell: {}
   set_excitation: {}
