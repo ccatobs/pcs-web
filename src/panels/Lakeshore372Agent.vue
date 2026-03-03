@@ -366,26 +366,20 @@
         </OcsTask>
         <div class="help_text">File path is on the agent host system.</div>
 
-        <!-- get_curve_list: DEFERRED for now, as the agent doesn't yet parse the returned curve list into session.data.
-             The agent currently returns curve data as a string in the return
-             message, not in session.data.
-
         <OcsTask :op_data="ops.get_curve_list">
-          <div v-if="Object.keys(ops.get_curve_list.session.data.curves || {}).length > 0"
+          <div v-if="curveListEntries.length > 0"
                class="curve_list_results">
             <div class="data_row header">
-              <span>Slot</span><span>Serial</span><span>Name</span>
+              <span>Slot</span><span>Serial</span>
             </div>
             <div class="data_row"
-                 v-for="(info, slot) in ops.get_curve_list.session.data.curves"
-                 :key="slot">
-              <span>{{ slot }}</span>
-              <span>{{ info.serial || '(empty)' }}</span>
-              <span>{{ info.name || '(empty)' }}</span>
+                 v-for="entry in curveListEntries"
+                 :key="entry.slot">
+              <span>{{ entry.slot }}</span>
+              <span>{{ entry.serial || '(empty)' }}</span>
             </div>
           </div>
         </OcsTask>
-        -->
       </div>
 
       <OcsOpAutofill
@@ -489,6 +483,13 @@
         }
         return new_data;
       },
+      curveListEntries() {
+        let data = this.ops.get_curve_list.session.data || {};
+        return Object.keys(data)
+          .filter(k => !isNaN(k))
+          .sort((a, b) => Number(a) - Number(b))
+          .map(slot => ({ slot: Number(slot), serial: data[slot].serial }));
+      },
     },
     methods: {
       set_autoscan(on) {
@@ -536,6 +537,20 @@
   }
   .cal_section {
     margin-top: 10px;
+  }
+  .curve_list_results > div {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-gap: 5px;
+  }
+  .curve_list_results > div:nth-child(odd) {
+    background-color: #f8f;
+  }
+  .curve_list_results > div:nth-child(even) {
+    background-color: #fdf;
+  }
+  .curve_list_results > div:first-child {
+    background-color: #fff;
   }
   .help_text {
     font-size: 9pt;
