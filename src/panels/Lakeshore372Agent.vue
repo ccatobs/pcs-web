@@ -369,23 +369,23 @@
         <!-- get_curve_list: DEFERRED for now, as the agent doesn't yet parse the returned curve list into session.data.
              The agent currently returns curve data as a string in the return
              message, not in session.data.
+        -->
 
         <OcsTask :op_data="ops.get_curve_list">
           <div v-if="Object.keys(ops.get_curve_list.session.data.curves || {}).length > 0"
                class="curve_list_results">
             <div class="data_row header">
-              <span>Slot</span><span>Serial</span><span>Name</span>
+              <span>Slot</span><span>Serial</span> <!-- <span>Name</span> -->
             </div>
             <div class="data_row"
                  v-for="(info, slot) in ops.get_curve_list.session.data.curves"
                  :key="slot">
               <span>{{ slot }}</span>
-              <span>{{ info.serial || '(empty)' }}</span>
-              <span>{{ info.name || '(empty)' }}</span>
+              <span>{{ info.serial || (empty) }}</span>
+              <!-- <span>{{ info.name || '(empty)' }}</span> -->
             </div>
           </div>
         </OcsTask>
-        -->
       </div>
 
       <OcsOpAutofill
